@@ -8,10 +8,17 @@
         :root {
             --bg-color: #0a0b0e;
             --text-color: #e2e8f0;
-            --accent-color: #6366f1; /* Morandi Purple */
+            --accent-color: #6366f1; 
             --accent-success: #10b981; 
             --card-bg: rgba(30, 32, 40, 0.6);
             --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Safe CSS Fallback Declaration */
+        @font-face {
+            font-family: 'OpticalMorandi';
+            src: url('./myfont.ttf') format('truetype');
+            font-display: swap;
         }
 
         body {
@@ -99,13 +106,12 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             margin-bottom: 25px;
         }
 
-        /* The inline display fallback selector */
         .cipher-render-layer {
-            font-family: 'CustomCipherFont', sans-serif;
+            font-family: 'OpticalMorandi', 'CustomCipherFont', monospace !important;
             font-size: 3rem;
             text-align: center;
             word-break: break-all;
@@ -113,8 +119,7 @@
             max-width: 90%;
             line-height: 1.3;
             color: #ffffff;
-            opacity: 0.5; /* Loading fallback state */
-            transition: opacity 0.5s;
+            letter-spacing: 2px;
         }
 
         .btn-group {
@@ -237,12 +242,12 @@
     <div class="container">
         <header>
             <h1>OPTICAL CODE GENERATOR</h1>
-            <p id="loadingStatus" style="color: #eab308;">📡 Initializing cryptographic core pack...</p>
+            <p id="loadingStatus" style="color: #10b981;">⚡ Core System Active.</p>
         </header>
 
         <div class="glass-panel">
             <label for="textInput">1. Enter Your Social Log (ASCII characters only)</label>
-            <textarea id="textInput" placeholder="Type your custom day logs here... e.g., SPACE2026" disabled></textarea>
+            <textarea id="textInput" placeholder="Type your custom day logs here... e.g., SPACE2026"></textarea>
 
             <label>2. Live Chat Sticker Preview (Low-Res / Social Size)</label>
             <div class="preview-box">
@@ -250,7 +255,7 @@
             </div>
 
             <div class="btn-group">
-                <button id="downloadStickerBtn" class="btn btn-primary" disabled>
+                <button id="downloadStickerBtn" class="btn btn-primary">
                     Free Download Chat Sticker (.png)
                 </button>
                 <a href="https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00" id="stripeBtn" class="btn btn-secondary" target="_blank">
@@ -261,9 +266,9 @@
 
         <footer>
             <div class="compliance-links">
-                <a href="#terms" onclick="alert('Terms of Service: This site generates local digital assets. No physical production or fulfillment is included in the basic tier.')">Terms</a> | 
-                <a href="#privacy" onclick="alert('Privacy Policy: All string rendering is processed locally within your browser. No data logs are harvested or sent to external servers.')">Privacy</a> | 
-                <a href="#refund" onclick="alert('Refund Policy: Digital downloads are non-refundable once generated.')">Refunds</a>
+                <a href="#terms" onclick="alert('Terms of Service: This site generates digital assets locally. Basic tier downloads contain low-res sticker maps.')">Terms</a> | 
+                <a href="#privacy" onclick="alert('Privacy Policy: Cryptographic rendering stays sandboxed inside your local client browser.')">Privacy</a> | 
+                <a href="#refund" onclick="alert('Refund Policy: Virtual custom generations are instant assets and cannot be recalled.')">Refunds</a>
             </div>
             <p style="margin-top: 10px;">© 2026 Cipher Studio. Powered by GitHub Static Edge Infrastructure.</p>
         </footer>
@@ -273,8 +278,8 @@
         <div class="modal-content">
             <div class="modal-title">🎉 Sticker Saved Successfully!</div>
             <div class="modal-text">
-                Your Morandi cipher sticker is ready to be sent on <strong>Discord, Telegram, or WhatsApp</strong>.<br><br>
-                ⚠️ <strong>Note:</strong> Your friends won't be able to read this hidden message! Let them know that the official <strong>"Decryption Codex Master Tape"</strong> is published on my channel!
+                Your Morandi cipher sticker is ready to be shared on <strong>Discord, Telegram, or WhatsApp</strong>.<br><br>
+                ⚠️ <strong>Note:</strong> Your peers won't be able to decode this raw matrix! Let them know that the official <strong>"Decryption Codex Master Tape"</strong> is active on my channel!
             </div>
             <a href="https://www.youtube.com/shorts/DMyPXwATUOQ" target="_blank" class="youtube-btn" id="goToYoutube">
                 ▶ Get Decryption Codex on YouTube
@@ -295,82 +300,106 @@
         const hiddenCanvas = document.getElementById('hiddenCanvas');
         const loadingStatus = document.getElementById('loadingStatus');
 
-        // 🔥 THE JAVASCRIPT HARD INJECTION ENGINE
-        // Forces browser memory stream to map './myfont.ttf' directly under raw 'CustomCipherFont' token scope.
-        const cipherFont = new FontFace('CustomCipherFont', 'url(./myfont.ttf)');
+        // Robust Parallel Font Loading Sequence
+        let isFontReady = false;
+        
+        function setupFontTracking() {
+            if (document.fonts.check("12px 'OpticalMorandi'")) {
+                isFontReady = true;
+                loadingStatus.textContent = "⚡ Cipher Core Pack Synced. System Ready.";
+                loadingStatus.style.color = "#10b981";
+            }
+        }
 
-        cipherFont.load().then(function(loadedFont) {
-            // Document registry injection
-            document.fonts.add(loadedFont);
-            
-            // Release lock and configure full interaction
-            loadingStatus.textContent = "⚡ Cipher Core Pack Synced. System Ready.";
-            loadingStatus.style.color = "#10b981";
-            cipherOutput.style.opacity = "1";
-            textInput.removeAttribute('disabled');
-            downloadStickerBtn.removeAttribute('disabled');
-            console.log("🎯 'myfont.ttf' compiled and fully injected into browser scope.");
-        }).catch(function(error) {
-            loadingStatus.textContent = "❌ Error: Failed to buffer './myfont.ttf'. Check if filename is lowercase in repo.";
-            loadingStatus.style.color = "#ef4444";
-            console.error("Font load catalog break:", error);
-        });
+        // Try direct script loading injection
+        try {
+            const cipherFont = new FontFace('CustomCipherFont', 'url(./myfont.ttf)');
+            cipherFont.load().then(function(loadedFont) {
+                document.fonts.add(loadedFont);
+                isFontReady = true;
+                loadingStatus.textContent = "⚡ Cipher Core Pack Synced. System Ready.";
+                loadingStatus.style.color = "#10b981";
+                updateDisplay();
+            }).catch(function(e) {
+                console.log("Static CSS fallback tracking initialized.");
+                setupFontTracking();
+            });
+        } catch(e) {
+            setupFontTracking();
+        }
 
-        // 1. Live text renderer
-        textInput.addEventListener('input', (e) => {
-            const val = e.target.value;
+        // Check fallback pooling regularly 
+        setInterval(() => {
+            if(!isFontReady) setupFontTracking();
+        }, 1000);
+
+        function updateDisplay() {
+            const val = textInput.value;
             cipherOutput.textContent = val || "PREVIEW";
             stripeBtn.href = `https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00?client_reference_id=${encodeURIComponent(val)}`;
-        });
+        }
+
+        // 1. Text rendering sync
+        textInput.addEventListener('input', updateDisplay);
 
         // 2. High-performance canvas compilation mapping font structure metrics onto PNG matrix
         downloadStickerBtn.addEventListener('click', () => {
             const text = textInput.value.trim();
-            if (!text) return;
+            if (!text) {
+                alert("Please type some logs first before exporting your sticker!");
+                return;
+            }
 
             const ctx = hiddenCanvas.getContext('2d');
             hiddenCanvas.width = 600;
             hiddenCanvas.height = 600;
 
-            // Background fill
+            // Background
             ctx.fillStyle = '#050608';
             ctx.fillRect(0, 0, 600, 600);
 
-            // Bind explicitly loaded JS memory reference
-            ctx.font = "60px 'CustomCipherFont'";
+            // Establish Font Priority Chain inside Canvas context scope
+            ctx.font = "60px 'OpticalMorandi', 'CustomCipherFont', monospace";
             ctx.fillStyle = "#ffffff";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            const words = text.split('');
-            let line = '';
+            // Clean processing without multi-character loop multiplication glitch
+            const rawChars = text.split('');
+            let currentLine = '';
             let lines = [];
             
-            for(let n = 0; n < words.length; n++) {
-                let testLine = line + words[n];
-                let metrics = ctx.measureText(testLine);
-                if (metrics.width > 500 && n > 0) {
-                    lines.push(line);
-                    line = words[n];
+            for(let n = 0; n < rawChars.length; n++) {
+                let testLine = currentLine + rawChars[n];
+                if (ctx.measureText(testLine).width > 520) {
+                    lines.push(currentLine);
+                    currentLine = rawChars[n];
                 } else {
-                    line = testLine;
+                    currentLine = testLine;
                 }
             }
-            lines.push(line);
+            if(currentLine) lines.push(currentLine);
 
-            const startY = 300 - ((lines.length - 1) * 35);
+            // Print line calculations
+            const startY = 300 - ((lines.length - 1) * 40);
             for(let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i], 300, startY + (i * 70));
+                ctx.fillText(lines[i], 300, startY + (i * 80));
             }
 
-            const link = document.createElement('a');
-            link.download = `cipher-sticker-${Date.now()}.png`;
-            link.href = hiddenCanvas.toDataURL('image/png');
-            link.click();
+            // Export image structure
+            try {
+                const link = document.createElement('a');
+                link.download = `cipher-sticker-${Date.now()}.png`;
+                link.href = hiddenCanvas.toDataURL('image/png');
+                link.click();
 
-            setTimeout(() => {
-                youtubeModal.style.display = 'flex';
-            }, 150);
+                // Open redirection modal dialog
+                setTimeout(() => {
+                    youtubeModal.style.display = 'flex';
+                }, 200);
+            } catch (canvasErr) {
+                alert("Generation processing issue. Please check if myfont.ttf exists in your repository.");
+            }
         });
 
         closeModal.addEventListener('click', () => { youtubeModal.style.display = 'none'; });
