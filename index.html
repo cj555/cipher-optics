@@ -17,7 +17,7 @@
         /* Natively load your local TrueType Font pack */
         @font-face {
             font-family: 'OpticalMorandi';
-            src: url('./myhfont.ttf') format('truetype');
+            src: url('./myfont.ttf') format('truetype');
             font-display: swap;
         }
 
@@ -323,7 +323,7 @@
         const hiddenCanvas = document.getElementById('hiddenCanvas');
 
         // 🛡️ CRITICAL FIX: Font Loader Guard Engine
-        // This interface forces JavaScript execution to freeze canvas compilation until the browser explicitly completes downloading 'myhfont.ttf'.
+        // This interface forces JavaScript execution to freeze canvas compilation until the browser explicitly completes downloading 'myfont.ttf'.
         let isFontReady = false;
         document.fonts.ready.then(function() {
             // Check if our specific font bundle is successfully cached
