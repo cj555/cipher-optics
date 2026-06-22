@@ -88,6 +88,8 @@
             font-size: 1.1rem;
             margin-bottom: 20px;
             transition: all 0.3s;
+            /* Allow tech input logs using native monospace system fonts */
+            font-family: monospace;
         }
 
         textarea:focus {
@@ -100,7 +102,7 @@
         .preview-box {
             position: relative;
             width: 100%;
-            aspect-ratio: 1; /* Perfect square for social stickers */
+            aspect-ratio: 1; 
             background: #050608;
             border-radius: 8px;
             display: flex;
@@ -111,14 +113,16 @@
             margin-bottom: 25px;
         }
 
+        /* FORCE preview text wrapper to implement your local ttf */
         .cipher-render-layer {
-            font-family: 'OpticalMorandi', sans-serif;
+            font-family: 'OpticalMorandi', monospace, sans-serif !important;
             font-size: 3rem;
             text-align: center;
             word-break: break-all;
             padding: 25px;
             max-width: 90%;
             line-height: 1.3;
+            color: #ffffff;
         }
 
         /* Button Grid Layout */
@@ -269,7 +273,7 @@
 
             <label>2. Live Chat Sticker Preview (Low-Res / Social Size)</label>
             <div class="preview-box">
-                <div id="cipherOutput" class="cipher-render-layer">PREVIEW</div>
+                <div id="cipherOutput" class="cipher-render-layer" style="font-family: 'OpticalMorandi';">PREVIEW</div>
             </div>
 
             <div class="btn-group">
@@ -318,6 +322,21 @@
         const closeModal = document.getElementById('closeModal');
         const hiddenCanvas = document.getElementById('hiddenCanvas');
 
+        // 🛡️ CRITICAL FIX: Font Loader Guard Engine
+        // This interface forces JavaScript execution to freeze canvas compilation until the browser explicitly completes downloading 'myhfont.ttf'.
+        let isFontReady = false;
+        document.fonts.ready.then(function() {
+            // Check if our specific font bundle is successfully cached
+            if (document.fonts.check("12px 'OpticalMorandi'")) {
+                isFontReady = true;
+                console.log("🚀 OpticalMorandi TrueType Font package loaded successfully inside memory stream.");
+                // Update preview area state immediately
+                if(textInput.value.trim()) {
+                    cipherOutput.textContent = textInput.value;
+                }
+            }
+        });
+
         // 1. Dynamic font state rendering listener
         textInput.addEventListener('input', (e) => {
             const val = e.target.value;
@@ -335,6 +354,11 @@
                 return;
             }
 
+            if (!isFontReady) {
+                alert("The custom cipher font bundle is still buffering. Please wait 2 seconds and try again!");
+                return;
+            }
+
             const ctx = hiddenCanvas.getContext('2d');
             hiddenCanvas.width = 600;
             hiddenCanvas.height = 600;
@@ -344,7 +368,8 @@
             ctx.fillRect(0, 0, 600, 600);
 
             // Inherit the loaded TrueType Font assets directly inside canvas scope
-            ctx.font = "60px 'OpticalMorandi'";
+            // We append serif fallbacks to comply with strict HTML5 matrix parameters
+            ctx.font = "60px 'OpticalMorandi', sans-serif";
             ctx.fillStyle = "#ffffff";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
