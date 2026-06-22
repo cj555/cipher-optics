@@ -14,13 +14,6 @@
             --border-color: rgba(255, 255, 255, 0.08);
         }
 
-        /* Natively load your local TrueType Font pack */
-        @font-face {
-            font-family: 'OpticalMorandi';
-            src: url('./myfont.ttf') format('truetype');
-            font-display: swap;
-        }
-
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0a0b0e 70%);
@@ -55,7 +48,6 @@
             text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
         }
 
-        /* Glassmorphism Panel Styling */
         .glass-panel {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -97,7 +89,6 @@
             box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
         }
 
-        /* Square Sticker Preview Area */
         .preview-box {
             position: relative;
             width: 100%;
@@ -112,9 +103,9 @@
             margin-bottom: 25px;
         }
 
-        /* FORCE preview text wrapper to implement your local ttf */
+        /* The inline display fallback selector */
         .cipher-render-layer {
-            font-family: 'OpticalMorandi', monospace, sans-serif !important;
+            font-family: 'CustomCipherFont', sans-serif;
             font-size: 3rem;
             text-align: center;
             word-break: break-all;
@@ -122,9 +113,10 @@
             max-width: 90%;
             line-height: 1.3;
             color: #ffffff;
+            opacity: 0.5; /* Loading fallback state */
+            transition: opacity 0.5s;
         }
 
-        /* Button Grid Layout */
         .btn-group {
             display: grid;
             grid-template-columns: 1fr;
@@ -145,7 +137,6 @@
             border: none;
         }
 
-        /* Free download button for low-res sticker */
         .btn-primary {
             background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white;
@@ -157,7 +148,6 @@
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
 
-        /* Premium tier via Stripe Payment Link with client passing token */
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
             color: #94a3b8;
@@ -170,7 +160,6 @@
             color: #fff;
         }
 
-        /* Redirection Pop-up Overlay */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -191,12 +180,6 @@
             max-width: 450px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         .modal-title {
@@ -224,12 +207,6 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-            transition: all 0.2s;
-        }
-
-        .youtube-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
         }
 
         .close-btn {
@@ -253,9 +230,6 @@
             text-decoration: none;
             margin: 0 5px;
         }
-        .compliance-links a:hover {
-            color: var(--accent-color);
-        }
     </style>
 </head>
 <body>
@@ -263,23 +237,22 @@
     <div class="container">
         <header>
             <h1>OPTICAL CODE GENERATOR</h1>
-            <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Convert your secret logs into customized Morandi optical ciphers.</p>
+            <p id="loadingStatus" style="color: #eab308;">📡 Initializing cryptographic core pack...</p>
         </header>
 
         <div class="glass-panel">
             <label for="textInput">1. Enter Your Social Log (ASCII characters only)</label>
-            <textarea id="textInput" placeholder="Type your custom day logs here... e.g., SPACE2026"></textarea>
+            <textarea id="textInput" placeholder="Type your custom day logs here... e.g., SPACE2026" disabled></textarea>
 
             <label>2. Live Chat Sticker Preview (Low-Res / Social Size)</label>
             <div class="preview-box">
-                <div id="cipherOutput" class="cipher-render-layer" style="font-family: 'OpticalMorandi';">PREVIEW</div>
+                <div id="cipherOutput" class="cipher-render-layer">PREVIEW</div>
             </div>
 
             <div class="btn-group">
-                <button id="downloadStickerBtn" class="btn btn-primary">
+                <button id="downloadStickerBtn" class="btn btn-primary" disabled>
                     Free Download Chat Sticker (.png)
                 </button>
-                
                 <a href="https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00" id="stripeBtn" class="btn btn-secondary" target="_blank">
                     Get Commercial License & 4K Ultra-HD Art ($4.99)
                 </a>
@@ -298,4 +271,110 @@
 
     <div id="youtubeModal" class="modal-overlay">
         <div class="modal-content">
-            <div class
+            <div class="modal-title">🎉 Sticker Saved Successfully!</div>
+            <div class="modal-text">
+                Your Morandi cipher sticker is ready to be sent on <strong>Discord, Telegram, or WhatsApp</strong>.<br><br>
+                ⚠️ <strong>Note:</strong> Your friends won't be able to read this hidden message! Let them know that the official <strong>"Decryption Codex Master Tape"</strong> is published on my channel!
+            </div>
+            <a href="https://www.youtube.com/shorts/DMyPXwATUOQ" target="_blank" class="youtube-btn" id="goToYoutube">
+                ▶ Get Decryption Codex on YouTube
+            </a>
+            <span class="close-btn" id="closeModal">Back to Generator</span>
+        </div>
+    </div>
+
+    <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const cipherOutput = document.getElementById('cipherOutput');
+        const downloadStickerBtn = document.getElementById('downloadStickerBtn');
+        const stripeBtn = document.getElementById('stripeBtn');
+        const youtubeModal = document.getElementById('youtubeModal');
+        const closeModal = document.getElementById('closeModal');
+        const hiddenCanvas = document.getElementById('hiddenCanvas');
+        const loadingStatus = document.getElementById('loadingStatus');
+
+        // 🔥 THE JAVASCRIPT HARD INJECTION ENGINE
+        // Forces browser memory stream to map './myfont.ttf' directly under raw 'CustomCipherFont' token scope.
+        const cipherFont = new FontFace('CustomCipherFont', 'url(./myfont.ttf)');
+
+        cipherFont.load().then(function(loadedFont) {
+            // Document registry injection
+            document.fonts.add(loadedFont);
+            
+            // Release lock and configure full interaction
+            loadingStatus.textContent = "⚡ Cipher Core Pack Synced. System Ready.";
+            loadingStatus.style.color = "#10b981";
+            cipherOutput.style.opacity = "1";
+            textInput.removeAttribute('disabled');
+            downloadStickerBtn.removeAttribute('disabled');
+            console.log("🎯 'myfont.ttf' compiled and fully injected into browser scope.");
+        }).catch(function(error) {
+            loadingStatus.textContent = "❌ Error: Failed to buffer './myfont.ttf'. Check if filename is lowercase in repo.";
+            loadingStatus.style.color = "#ef4444";
+            console.error("Font load catalog break:", error);
+        });
+
+        // 1. Live text renderer
+        textInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            cipherOutput.textContent = val || "PREVIEW";
+            stripeBtn.href = `https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00?client_reference_id=${encodeURIComponent(val)}`;
+        });
+
+        // 2. High-performance canvas compilation mapping font structure metrics onto PNG matrix
+        downloadStickerBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            const ctx = hiddenCanvas.getContext('2d');
+            hiddenCanvas.width = 600;
+            hiddenCanvas.height = 600;
+
+            // Background fill
+            ctx.fillStyle = '#050608';
+            ctx.fillRect(0, 0, 600, 600);
+
+            // Bind explicitly loaded JS memory reference
+            ctx.font = "60px 'CustomCipherFont'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const words = text.split('');
+            let line = '';
+            let lines = [];
+            
+            for(let n = 0; n < words.length; n++) {
+                let testLine = line + words[n];
+                let metrics = ctx.measureText(testLine);
+                if (metrics.width > 500 && n > 0) {
+                    lines.push(line);
+                    line = words[n];
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line);
+
+            const startY = 300 - ((lines.length - 1) * 35);
+            for(let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], 300, startY + (i * 70));
+            }
+
+            const link = document.createElement('a');
+            link.download = `cipher-sticker-${Date.now()}.png`;
+            link.href = hiddenCanvas.toDataURL('image/png');
+            link.click();
+
+            setTimeout(() => {
+                youtubeModal.style.display = 'flex';
+            }, 150);
+        });
+
+        closeModal.addEventListener('click', () => { youtubeModal.style.display = 'none'; });
+        document.getElementById('goToYoutube').addEventListener('click', () => { youtubeModal.style.display = 'none'; });
+    </script>
+</body>
+</html>
