@@ -1,215 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Payment Successful | Order Fulfillment Center</title>
-    <style>
-        :root {
-            --bg-color: #050608;
-            --text-color: #e2e8f0;
-            --accent-success: #10b981; 
-            --card-bg: rgba(30, 32, 40, 0.6);
-            --border-color: rgba(255, 255, 255, 0.08);
-        }
-
-        /* ======================================================== */
-        /* 💡 CRITICAL: PLACE YOUR PREMIUM LOSSLESS BASE64 FONT HERE */
-        /* 将你用来做 4K 商业交付的全字符无损母带 TTF 的 Base64 文本粘贴并替换下方这三行 */
-        @font-face {
-            font-family: 'OpticalMorandiMaster';
-            src: url('./myfont.ttf') format('truetype');
-            font-display: block;
-        }
-        /* ======================================================== */
-
-        body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #064e3b 0%, #050608 70%);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            min-height: 100vh; align-items: center;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        .container {
-            width: 100%; max-width: 600px;
-            padding: 40px 20px; box-sizing: border-box; text-align: center;
-        }
-
-        .success-icon {
-            font-size: 4rem; color: var(--accent-success); margin-bottom: 15px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); text-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
-            50% { transform: scale(1.05); text-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
-            100% { transform: scale(1); text-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
-        }
-
-        h1 { font-size: 1.8rem; color: #fff; margin-bottom: 5px; letter-spacing: 1px; }
-        p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-top: 0; }
-
-        .asset-card {
-            background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color); border-radius: 16px; padding: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); margin-top: 25px;
-        }
-
-        /* Responsive image container holding the generated 4K raster asset */
-        .image-wrapper {
-            position: relative; width: 100%; aspect-ratio: 1; background: #000;
-            border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 20px; overflow: hidden; display: flex;
-            justify-content: center; align-items: center;
-        }
-
-        .image-wrapper img {
-            width: 100%; height: 100%; object-fit: contain; max-width: 100%; display: none;
-        }
-
-        /* Loading skeleton spinner placeholder */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1); width: 50px; height: 40px;
-            border-radius: 50%; border-left-color: var(--accent-success);
-            animation: spin 1s linear infinite; display: inline-block;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .btn-download {
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; padding: 14px; font-size: 1rem; font-weight: 600;
-            border-radius: 8px; cursor: pointer; text-decoration: none; border: none;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: transform 0.2s;
-            -webkit-tap-highlight-color: transparent; margin-bottom: 12px;
-        }
-        .btn-download:hover { transform: translateY(-2px); }
-
-        .btn-back {
-            display: inline-flex; color: #4f46e5; text-decoration: none;
-            font-size: 0.85rem; font-weight: 500; margin-top: 15px;
-        }
-        .btn-back:hover { text-decoration: underline; color: #6366f1; }
-
-        footer { margin-top: 40px; font-size: 0.75rem; color: #475569; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>付款成功 - 正在下载超清原图</title>
+  <style>
+    body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; text-align: center; padding: 50px 20px; }
+    .card { background: #1a1a1a; max-width: 450px; margin: 0 auto; padding: 40px 20px; border-radius: 16px; border: 1px solid #222; }
+    .icon { color: #24b47e; font-size: 48px; margin-bottom: 20px; }
+    h2 { font-weight: 600; margin-bottom: 12px; }
+    p { color: #888; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; }
+    .loader { border: 3px solid #333; border-top: 3px solid #635bff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #hidden-engine { display: none; }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="success-icon">✓</div>
-        <h1>ORDER VERIFIED</h1>
-        <p>Thank you for your premium support! Your 4K Ultra-HD commercial digital asset has been compiled locally via your hardware encryption container.</p>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h2>感谢您的支持！</h2>
+    <p id="status-text">正在从安全网关安全提取您的印刷级无损矢量原图，请勿关闭窗口...</p>
+    <div class="loader" id="status-loader"></div>
+  </div>
 
-        <div class="glass-panel asset-card">
-            <div class="image-wrapper" id="imageWrapper">
-                <div id="loader" class="spinner"></div>
-                <img id="outputImage" alt="4K Premium Cipher Asset" />
-            </div>
+  <iframe id="hidden-engine" src="/index.html"></iframe>
 
-            <button id="downloadHdBtn" class="btn-download" style="display: none;">
-                Save Lossless 4K PNG Asset
-            </button>
-            <p style="font-size: 0.8rem; color: #64748b; margin: 5px 0 0 0;">Mobile devices: You can also tap and hold the image panel above to save straight to your camera roll.</p>
-        </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      // 获取 Stripe 透传回来的自定义引用参数
+      const clientRef = urlParams.get('client_reference_id');
 
-        <a href="./index.html" class="btn-back">← Return to Generator Terminal</a>
+      if (!clientRef) {
+        document.getElementById('status-text').innerText = "未检测到有效定制凭证，请联系客服处理。";
+        document.getElementById('status-loader').style.display = 'none';
+        return;
+      }
 
-        <footer>
-            <p>© 2026 Cipher Studio. Cryptographic Token Verified by Stripe Payment Gateway.</p>
-        </footer>
-    </div>
+      // 解析混淆的定制文本
+      let rawText = "";
+      try {
+        rawText = decodeURIComponent(atob(clientRef));
+      } catch (e) {
+        console.error("参数解析有误", e);
+      }
 
-    <canvas id="hdCanvas" style="display: none;"></canvas>
-
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const hdCanvas = document.getElementById('hdCanvas');
-            const outputImage = document.getElementById('outputImage');
-            const downloadHdBtn = document.getElementById('downloadHdBtn');
-            const loader = document.getElementById('loader');
-
-            // 1. Parse URL Token Query Matrix via Stripe client reference bridge
-            const urlParams = new URLSearchParams(window.location.search);
-            // Fallback default signature if parameter channel transmission gets cropped
-            let plaintextToken = urlParams.get('client_reference_id') || "PREMIUM ASSET";
-            plaintextToken = decodeURIComponent(plaintextToken).trim();
-
-            // 2. Strict Font Context Processing Gate
-            document.fonts.ready.then(() => {
-                // Ensure browser core registry safely binds the Master Font
-                setTimeout(renderPremium4KMatrix, 500); 
-            });
-
-            // 3. High-Performance 4K Cryptographic Blueprint Rasterizer
-            function renderPremium4KMatrix() {
-                const ctx = hdCanvas.getContext('2d');
-                
-                // Establish exact physical parameters matching commercial printing standard formats
-                hdCanvas.width = 4000;
-                hdCanvas.height = 4000;
-
-                // Solid pitch black background (No watermarks, clean studio grade print)
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, 4000, 4000);
-
-                // Configure Master typography context vector limits
-                ctx.font = "380px 'OpticalMorandiMaster', 'CustomCipherFont', monospace";
-                ctx.fillStyle = "#ffffff";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-
-                // Word wrap processing loop tailored to handle extreme dimensions safely
-                const rawChars = plaintextToken.split('');
-                let currentLine = '';
-                let lines = [];
-                
-                for (let n = 0; n < rawChars.length; n++) {
-                    let testLine = currentLine + rawChars[n];
-                    // Wraps elegantly at width constraints to keep symbols perfectly centered
-                    if (ctx.measureText(testLine).width > 3400) {
-                        lines.push(currentLine);
-                        currentLine = rawChars[n];
-                    } else {
-                        currentLine = testLine;
-                    }
-                }
-                if (currentLine) lines.push(currentLine);
-
-                // Draw vectors cleanly straight onto high DPI canvas element frame
-                const startY = 2000 - ((lines.length - 1) * 250);
-                for (let i = 0; i < lines.length; i++) {
-                    ctx.fillText(lines[i], 2000, startY + (i * 500));
-                }
-
-                // Convert pure binary canvas scope data stream into portable high fidelity DataUrl format
-                try {
-                    const hdDataUrl = hdCanvas.toDataURL('image/png');
-                    
-                    // Display image node and close buffering tracking loader
-                    outputImage.src = hdDataUrl;
-                    outputImage.style.display = 'block';
-                    loader.style.display = 'none';
-                    downloadHdBtn.style.display = 'flex';
-
-                    // 4. Client Side File System Anchor Saver Trigger
-                    downloadHdBtn.addEventListener('click', () => {
-                        const link = document.createElement('a');
-                        link.download = `cipher-4k-master-${Date.now()}.png`;
-                        link.href = hdDataUrl;
-                        link.click();
-                    });
-
-                } catch (err) {
-                    console.error("HD Serialization gate failure:", err);
-                    loader.innerHTML = "<p style='color:#ef4444; font-size:0.85rem;'>Asset rendering error. Contact support@yourdomain.com</p>";
-                }
-            }
-        });
-    </script>
+      const iframe = document.getElementById('hidden-engine');
+      
+      // 等待隐藏的内联核心引擎加载完毕，直接调用其组件方法进行 HD 合成下载
+      iframe.onload = function() {
+        const engineWindow = iframe.contentWindow;
+        
+        // 动态等待 iframe 内部雪碧图 fetch 完毕的微小延迟
+        setTimeout(() => {
+          if (engineWindow && typeof engineWindow.pureFrontendDownloadTrigger === 'function') {
+            // 核心安全越壁下载：isHighRes 传入 true，不加任何明文水印与 CSS 噪点滤镜
+            engineWindow.pureFrontendDownloadTrigger({ isHighRes: true, text: rawText });
+            
+            document.getElementById('status-text').innerHTML = `您的 <b>HD 无损矢量图 (.svg)</b> 已成功触发自动下载！<br>您可以直接将此文件提交给 Printful / Printify 等印厂制作衣服。`;
+            document.getElementById('status-loader').style.display = 'none';
+          }
+        }, 800);
+      };
+    });
+  </script>
 </body>
 </html>
