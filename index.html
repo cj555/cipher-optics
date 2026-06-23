@@ -65,7 +65,8 @@
 
     // 页面初始化时，纯前端异步预加载雪碧图库，解决移动端并行加载网络请求阻塞与画布渲染白框死穴
     window.addEventListener('DOMContentLoaded', () => {
-      fetch('./sprite.svg')
+      const spriteUrl = new URL('sprite.svg', document.baseURI).href;
+      fetch(spriteUrl)
         .then(response => response.text())
         .then(svgText => {
           document.getElementById('sprite-load-area').innerHTML = svgText;
