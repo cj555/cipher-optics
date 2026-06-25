@@ -4,10 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "http-server . -p 3000 -c-1 --cors",
-    "start": "http-server . -p 3000 -c-1 --cors"
+    "start": "http-server . -p 3000 -c-1 --cors",
+    "generate": "node scripts/generate-images.js",
+    "generate:dry": "node scripts/generate-images.js --dry-run",
+    "export": "open \"$APP_URL/api/export-orders?secret=$ADMIN_SECRET\""
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "canvas": "^2.11.2",
+    "sharp": "^0.33.2",
+    "dotenv": "^16.4.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
