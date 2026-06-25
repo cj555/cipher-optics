@@ -10,10 +10,7 @@
     "export": "open \"$APP_URL/api/export-orders?secret=$ADMIN_SECRET\""
   },
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "canvas": "^2.11.2",
-    "sharp": "^0.33.2",
-    "dotenv": "^16.4.1"
+    "http-server": "^14.1.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

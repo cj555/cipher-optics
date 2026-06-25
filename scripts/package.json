@@ -1,0 +1,11 @@
+{
+  "name": "cipher-optics-scripts",
+  "private": true,
+  "description": "Local-only scripts — NOT deployed to Vercel",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "canvas": "^2.11.2",
+    "dotenv": "^16.4.1",
+    "sharp": "^0.33.2"
+  }
+}
