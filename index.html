@@ -1,183 +1,173 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Optical Cipher Studio</title>
-  <style>
-    :root { --bg-color: #0d0d0d; --panel-color: #1a1a1a; --primary-color: #635bff; --accent-color: #ff4500; }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-color); color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-    
-    h1 { font-size: 1.5rem; font-weight: 600; margin: 20px 0 10px 0; background: linear-gradient(45deg, #e2cfc4, #b5a4a7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p.subtitle { color: #888; font-size: 0.85rem; margin-bottom: 30px; }
-
-    .input-container { width: 100%; max-width: 500px; margin-bottom: 25px; }
-    input[type="text"] { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #333; background-color: var(--panel-color); color: #fff; font-size: 1.1rem; text-align: center; outline: none; transition: border-color 0.3s; }
-    input[type="text"]:focus { border-color: var(--primary-color); }
-
-    /* 预览面板及移动端渲染优化 */
-    #preview-box { width: 100%; max-width: 500px; background: var(--panel-color); border-radius: 16px; padding: 25px 15px; display: flex; justify-content: center; align-items: center; min-height: 120px; margin-bottom: 35px; border: 1px solid #222; position: relative; overflow: hidden; }
-    #cipher-output { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; width: 100%; }
-    
-    /* 移动端无色差矢量渲染尺寸控制 */
-    .cipher-icon { width: 45px; height: 45px; transition: transform 0.2s; }
-    
-    /* 防白嫖机制：未付费状态下预览区加模糊滤镜和动态半透明水印 */
-    .locked-preview #cipher-output { filter: blur(2px) grayscale(0.4); opacity: 0.5; pointer-events: none; }
-    .watermark { display: none; position: absolute; font-size: 1.8rem; font-weight: 900; color: rgba(255, 255, 255, 0.07); transform: rotate(-15deg); user-select: none; pointer-events: none; letter-spacing: 4px; }
-    .locked-preview .watermark { display: block; }
-
-    /* 按钮样式 */
-    .action-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 14px; }
-    button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-    button:active { transform: scale(0.98); }
-    .btn-stripe { background: var(--primary-color); color: #fff; box-shadow: 0 4px 15px rgba(99, 91, 255, 0.3); }
-    .btn-free { background: #262626; color: #aaa; border: 1px solid #333; }
-    
-    #sprite-load-area { display: none; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d0d2b">
+  <meta name="description" content="定制你的专属多面体 — CipherOptics">
+  <title>CipherOptics</title>
+  <link rel="stylesheet" href="/src/styles.css">
+  <!-- PWA manifest (optional) -->
+  <link rel="apple-touch-icon" href="/public/icon-192.png">
 </head>
 <body>
+<div id="app">
 
-  <h1>光学密文潮流生成器</h1>
-  <p class="subtitle">输入英文，自动转换成印刷级莫兰蒂渐变光学元器件矩阵</p>
+  <!-- ─── Step 1: Theme ─────────────────────────────────────────────── -->
+  <section id="step-1" class="step active">
+    <div class="topbar">
+      <div class="spacer"></div>
+      <h1>CipherOptics</h1>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
 
-  <div class="input-container">
-    <input type="text" id="text-input" placeholder="输入英文密语 (如 LOVE)..." maxlength="30" autocomplete="off">
+    <div class="progress">
+      <div class="progress-step"><div class="progress-dot active"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot"></div></div>
+    </div>
+
+    <p class="section-title" data-i18n="step1.subtitle">选择主题风格</p>
+    <p class="section-sub" style="margin-bottom:16px">主题决定配色和图标列表</p>
+
+    <div class="theme-grid" id="theme-grid"></div>
+  </section>
+
+  <!-- ─── Step 2: Polygon ───────────────────────────────────────────── -->
+  <section id="step-2" class="step">
+    <div class="topbar">
+      <button class="back-btn" aria-label="返回">←</button>
+      <h1 data-i18n="step2.title">选择多面体</h1>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-step"><div class="progress-dot done"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot active"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot"></div></div>
+    </div>
+
+    <p class="section-sub">每个面都可以放置一个图标</p>
+    <div class="polygon-grid" id="polygon-grid"></div>
+  </section>
+
+  <!-- ─── Step 3: Customize ─────────────────────────────────────────── -->
+  <section id="step-3" class="step">
+    <div class="topbar">
+      <button class="back-btn" aria-label="返回">←</button>
+      <h1 data-i18n="step3.title">定制设计</h1>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-step"><div class="progress-dot done"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot done"></div></div>
+      <div class="progress-line"></div>
+      <div class="progress-step"><div class="progress-dot active"></div></div>
+    </div>
+
+    <div class="title-input-wrap">
+      <input type="text" id="product-title" data-i18n-ph="step3.titleHint" maxlength="15"
+             placeholder="输入标题（最多15字）">
+    </div>
+
+    <div id="three-container"></div>
+    <p class="rotate-hint" id="rotate-hint" data-i18n="rotate.hint">拖动旋转 · 点击选面</p>
+    <p class="face-status" id="face-status"></p>
+
+    <button class="buy-btn" id="buy-btn" disabled>
+      <span data-i18n="buy.button">立即购买</span>
+    </button>
+  </section>
+
+  <!-- ─── Icon Picker (bottom sheet) ───────────────────────────────── -->
+  <div class="icon-picker" id="icon-picker">
+    <div class="picker-handle"></div>
+    <div class="picker-header">
+      <h3 data-i18n="picker.title">选择图标</h3>
+      <span class="picker-face-label" id="picker-face-label">面 1</span>
+    </div>
+    <div class="icon-grid" id="icon-grid"></div>
   </div>
 
-  <div id="preview-box" class="locked-preview">
-    <div class="watermark">PREVIEW ONLY</div>
-    <div id="cipher-output"></div>
+  <!-- ─── Semi-transparent overlay ────────────────────────────────── -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ─── Buy Modal ────────────────────────────────────────────────── -->
+  <div class="modal" id="buy-modal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <button class="modal-close" id="close-buy" aria-label="关闭">×</button>
+      <p class="modal-title" data-i18n="buy.title">选择购买方式</p>
+      <div class="buy-options">
+        <div class="buy-option" id="btn-digital">
+          <div class="buy-option-icon">🖼️</div>
+          <div class="buy-option-info">
+            <strong data-i18n="buy.digital">数字高清图</strong>
+            <small data-i18n="buy.digital.desc">即时下载 · 5000×5000 WebP · 300DPI</small>
+          </div>
+          <span class="price" id="price-digital">$9.99</span>
+        </div>
+        <div class="buy-option" id="btn-physical">
+          <div class="buy-option-icon">📦</div>
+          <div class="buy-option-info">
+            <strong data-i18n="buy.physical">实物印花</strong>
+            <small data-i18n="buy.physical.desc">定制印刷 · 邮寄到家</small>
+          </div>
+          <span class="price" id="price-physical">$29.99</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="action-container">
-    <button class="btn-stripe" onclick="payWithStripe()">付 $4.99 下载超清无损矢量图</button>
-    <button class="btn-free" onclick="redirectToFreeRoute()">免费下载 (前往 YouTube 频道解密)</button>
+  <!-- ─── Physical Order Modal ─────────────────────────────────────── -->
+  <div class="modal" id="physical-modal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <button class="modal-close" id="close-physical" aria-label="关闭">×</button>
+      <div id="physical-loading" class="loading-spinner" style="display:none"></div>
+      <div id="physical-form" style="display:none">
+        <pre class="popup-text" id="popup-text"></pre>
+        <form id="email-form" novalidate>
+          <input type="email" id="customer-email"
+                 data-i18n-ph="form.emailPlaceholder"
+                 placeholder="your@email.com" required>
+          <button type="submit" class="submit-btn" data-i18n="form.submit">
+            预约我的专属位置 →
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div id="sprite-load-area"></div>
+</div><!-- #app -->
 
-  <script>
-    const input = document.getElementById('text-input');
-    const output = document.getElementById('cipher-output');
+<!-- Three.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    // 页面初始化时，纯前端异步预加载雪碧图库，解决移动端并行加载网络请求阻塞与画布渲染白框死穴
-    window.addEventListener('DOMContentLoaded', () => {
-      const spriteUrl = new URL('sprite.svg', document.baseURI).href;
-      fetch(spriteUrl)
-        .then(response => response.text())
-        .then(svgText => {
-          document.getElementById('sprite-load-area').innerHTML = svgText;
-        }).catch(err => console.error("雪碧图加载失败:", err));
-    });
-
-    // 实时监听输入，建立高速 SVG `<use>` 原生链映射
-    input.addEventListener('input', (e) => {
-      let text = e.target.value.toUpperCase(); // 强制转换为大写增强器件一致性（可根据自身映射修改）
-      input.value = text;
-      output.innerHTML = '';
-
-      if(!text) return;
-
-      for (let i = 0; i < text.length; i++) {
-        const asciiCode = text.charCodeAt(i);
-        // 通过 use href 锚点动态调取内存中的雪碧图节点，100% 满帧、矢量缩放不失真
-        const svgNode = `
-          <svg class="cipher-icon" viewBox="0 0 100 100">
-            <use href="#char-${asciiCode}"></use>
-          </svg>
-        `;
-        output.innerHTML += svgNode;
-      }
-    });
-
-    // 渠道 1：Stripe 付费无损原图导出通道
-    function payWithStripe() {
-      const textVal = input.value.trim();
-      if (!textVal) return alert("请先输入需要加密的密文！");
-      
-      // 使用 base64 混淆字符数据，作为 client_reference_id 穿透给 Stripe Checkout
-      const encodedText = btoa(encodeURIComponent(textVal));
-      
-      // 重定向至你的 Stripe 专属 Checkout 托管支付链接
-      window.location.href = `https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00?client_reference_id=${encodedText}`;
-    }
-
-    // 渠道 2：免费通道 —— 强制跳 YouTube 主页，延时在原窗口下发带水印的低画质图
-    function redirectToFreeRoute() {
-      const textVal = input.value.trim();
-      if (!textVal) return alert("请先输入需要加密的密文！");
-
-      alert("感谢支持！系统正在为您跳转 YouTube 官方解密主页。请不要关闭当前网页，看完视频返回后将自动下载。");
-
-      // 在新标签页打开 YouTube 频道刷视频完播率与播放权重
-      window.open('https://www.youtube.com/@你的频道主页', '_blank');
-
-      // 留在本App的当前窗口，延迟 3 秒后触发带有降质、模糊以及水印的低清图片导出
-      setTimeout(() => {
-        generateAndDownloadSVG({ isHighRes: false, text: textVal });
-      }, 3000);
-    }
-
-    // 工业级：纯前端 SVG 路径深度重组与提取引擎
-    function generateAndDownloadSVG({ isHighRes, text }) {
-      if(!text) return;
-      
-      let combinedContent = '';
-      const charWidth = 100; // 单个字符在矢量画布里的基准宽度
-      const totalWidth = text.length * charWidth;
-
-      // 深度遍历当前文本，抓取内联雪碧图里的原始矢量定义，进行物理合并，断开外部引用依赖
-      for (let i = 0; i < text.length; i++) {
-        const asciiCode = text.charCodeAt(i);
-        const symbolNode = document.getElementById(`char-${asciiCode}`);
-        
-        if (symbolNode) {
-          // 抓取原本提取到的 <symbol> 内部纯路径代码
-          let innerContent = symbolNode.innerHTML;
-          // 利用 translate 矩阵进行 X 轴完美横向等距排布
-          combinedContent += `<g transform="translate(${i * charWidth}, 0)">${innerContent}</g>`;
-        }
-      }
-
-      // 如果是免费版本，动态注入一行明文防伪水印路径，破坏印厂直接印刷的可能
-      if (!isHighRes) {
-        combinedContent += `
-          <text x="50%" y="85%" font-family="sans-serif" font-size="28" fill="rgba(255,255,255,0.2)" 
-          text-anchor="middle" font-weight="bold" letter-spacing="2">FREE PREVIEW ONLY</text>
-        `;
-      }
-
-      // 动态合成一个完整、独立、无外部依赖的超级矢量 SVG 文件
-      // 付费版（HighRes）输出 3000px 级别的印刷级图，免费版缩减尺寸
-      const finalWidth = isHighRes ? 3000 : 600;
-      const finalHeight = isHighRes ? 1000 : 200;
-      
-      const svgWrapper = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} 100" width="${finalWidth}" height="${finalHeight}" style="background:#000;">
-          ${combinedContent}
-        </svg>
-      `;
-
-      // 转换为前端二进制 Blob 流实现零延迟静默下载
-      const blob = new Blob([svgWrapper], { type: 'image/svg+xml;charset=utf-8' });
-      const blobUrl = URL.createObjectURL(blob);
-
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.href = blobUrl;
-      downloadAnchor.download = isHighRes ? `HD-Optical-Cipher-${Date.now()}.svg` : `Free-Preview-Cipher.svg`;
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      
-      // 释放内存内存指针
-      document.body.removeChild(downloadAnchor);
-      URL.revokeObjectURL(blobUrl);
-    }
-    
-    // 暴露出下载方法供 success.html 跨端调用
-    window.pureFrontendDownloadTrigger = generateAndDownloadSVG;
-  </script>
+<!-- App scripts -->
+<script src="/src/config.js"></script>
+<script src="/src/icons.js"></script>
+<script src="/src/i18n.js"></script>
+<script src="/src/polygon.js"></script>
+<script src="/src/app.js"></script>
 </body>
 </html>

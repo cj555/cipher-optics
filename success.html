@@ -1,69 +1,180 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>付款成功 - 正在下载超清原图</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0d2b">
+  <title>下载你的作品 — CipherOptics</title>
+  <link rel="stylesheet" href="/src/styles.css">
   <style>
-    body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; text-align: center; padding: 50px 20px; }
-    .card { background: #1a1a1a; max-width: 450px; margin: 0 auto; padding: 40px 20px; border-radius: 16px; border: 1px solid #222; }
-    .icon { color: #24b47e; font-size: 48px; margin-bottom: 20px; }
-    h2 { font-weight: 600; margin-bottom: 12px; }
-    p { color: #888; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; }
-    .loader { border: 3px solid #333; border-top: 3px solid #635bff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    #hidden-engine { display: none; }
+    .success-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 100dvh; padding: 24px;
+      text-align: center; gap: 20px;
+    }
+    .success-icon { font-size: 3rem; }
+    .success-title { font-size: 1.5rem; font-weight: 800; color: var(--theme-title); }
+    .success-sub { font-size: 0.9rem; color: rgba(255,255,255,0.55); }
+    .preview-canvas {
+      width: 100%; max-width: 320px; border-radius: 16px;
+      overflow: hidden; background: rgba(255,255,255,0.05);
+      aspect-ratio: 1;
+    }
+    .preview-canvas canvas { width: 100%; height: 100%; display: block; }
+    .dl-btn {
+      width: 100%; max-width: 320px;
+      padding: 16px; border-radius: 16px;
+      background: var(--theme-accent); color: #fff;
+      font-size: 1rem; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      cursor: pointer; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: 0.28s ease;
+    }
+    .dl-btn:hover { opacity: 0.9; }
+    .home-link {
+      font-size: 0.85rem; color: rgba(255,255,255,0.45);
+      text-decoration: none;
+    }
+    .home-link:hover { color: rgba(255,255,255,0.7); }
+    .generating { color: rgba(255,255,255,0.5); font-size: 0.875rem; }
   </style>
 </head>
 <body>
+<div class="success-wrap">
+  <div class="success-icon">✨</div>
+  <h1 class="success-title">付款成功！</h1>
+  <p class="success-sub">正在生成你的专属高清图片...</p>
 
-  <div class="card">
-    <div class="icon">✓</div>
-    <h2>感谢您的支持！</h2>
-    <p id="status-text">正在从安全网关安全提取您的印刷级无损矢量原图，请勿关闭窗口...</p>
-    <div class="loader" id="status-loader"></div>
+  <div class="preview-canvas" id="preview-wrap">
+    <p class="generating" style="padding:40px 20px">生成中...</p>
   </div>
 
-<iframe id="hidden-engine" src="index.html"></iframe>
+  <a class="dl-btn" id="dl-btn" style="display:none" href="#">
+    ⬇ 下载高清图片 (WebP)
+  </a>
+  <a class="home-link" href="/">← 返回首页</a>
+</div>
 
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      // 获取 Stripe 透传回来的自定义引用参数
-      const clientRef = urlParams.get('client_reference_id');
+<script src="/src/config.js"></script>
+<script src="/src/icons.js"></script>
+<script>
+(async () => {
+  // Retrieve order from sessionStorage (set before Stripe redirect)
+  const raw = sessionStorage.getItem('pendingOrder');
+  if (!raw) {
+    document.querySelector('.success-sub').textContent = '找不到订单信息，请返回重试。';
+    return;
+  }
 
-      if (!clientRef) {
-        document.getElementById('status-text').innerText = "未检测到有效定制凭证，请联系客服处理。";
-        document.getElementById('status-loader').style.display = 'none';
-        return;
-      }
+  const order = JSON.parse(raw);
+  sessionStorage.removeItem('pendingOrder');
 
-      // 解析混淆的定制文本
-      let rawText = "";
-      try {
-        rawText = decodeURIComponent(atob(clientRef));
-      } catch (e) {
-        console.error("参数解析有误", e);
-      }
+  // Apply theme
+  const theme = CONFIG.themes[order.theme];
+  if (theme) {
+    document.documentElement.style.setProperty('--theme-bg', theme.polygonColor);
+    document.documentElement.style.setProperty('--theme-accent', theme.accentColor);
+    document.documentElement.style.setProperty('--theme-title', theme.titleColor);
+    document.documentElement.style.setProperty('--theme-glow', theme.glowColor);
+    document.body.style.background = theme.polygonColor;
+  }
 
-      const iframe = document.getElementById('hidden-engine');
-      
-      // 等待隐藏的内联核心引擎加载完毕，直接调用其组件方法进行 HD 合成下载
-      iframe.onload = function() {
-        const engineWindow = iframe.contentWindow;
-        
-        // 动态等待 iframe 内部雪碧图 fetch 完毕的微小延迟
-        setTimeout(() => {
-          if (engineWindow && typeof engineWindow.pureFrontendDownloadTrigger === 'function') {
-            // 核心安全越壁下载：isHighRes 传入 true，不加任何明文水印与 CSS 噪点滤镜
-            engineWindow.pureFrontendDownloadTrigger({ isHighRes: true, text: rawText });
-            
-            document.getElementById('status-text').innerHTML = `您的 <b>HD 无损矢量图 (.svg)</b> 已成功触发自动下载！<br>您可以直接将此文件提交给 Printful / Printify 等印厂制作衣服。`;
-            document.getElementById('status-loader').style.display = 'none';
-          }
-        }, 800);
-      };
-    });
-  </script>
+  const poly = CONFIG.polygons[order.polygon];
+  const W = CONFIG.image.previewWidth;
+  const H = CONFIG.image.previewHeight;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+  grad.addColorStop(0, lighten(theme.polygonColor, 20));
+  grad.addColorStop(1, theme.polygonColor);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Glow
+  const glow = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.4);
+  glow.addColorStop(0, hexRgba(theme.glowColor, 0.18));
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Title
+  ctx.font = `bold ${W*0.065}px -apple-system, sans-serif`;
+  ctx.fillStyle = theme.titleColor;
+  ctx.textAlign = 'center';
+  ctx.fillText(order.title || 'CipherOptics', W/2, W*0.1);
+
+  // Face icons grid
+  const faceCount = poly.faces;
+  const cols = Math.ceil(Math.sqrt(faceCount));
+  const rows = Math.ceil(faceCount / cols);
+  const cellW = W * 0.62 / cols;
+  const cellH = H * 0.62 / rows;
+  const startX = W * 0.19;
+  const startY = H * 0.2;
+
+  for (let i = 0; i < faceCount; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = startX + col * cellW;
+    const y = startY + row * cellH;
+    const iconId = order.faceIcons[i] || order.faceIcons[String(i)];
+    if (!iconId) continue;
+
+    const faceColor = theme.faceColors[i % theme.faceColors.length];
+    const iconCanvas = await renderIconToCanvas(iconId, Math.floor(cellW * 0.8), faceColor, '#ffffff');
+
+    roundRect(ctx, x + cellW*0.1, y + cellH*0.1, cellW*0.8, cellH*0.8, 16);
+    ctx.fillStyle = faceColor;
+    ctx.fill();
+    ctx.drawImage(iconCanvas, x + cellW*0.15, y + cellH*0.15, cellW*0.7, cellH*0.7);
+  }
+
+  // Watermark
+  ctx.font = `${W*0.022}px -apple-system, sans-serif`;
+  ctx.fillStyle = hexRgba(theme.titleColor, 0.3);
+  ctx.textAlign = 'center';
+  ctx.fillText('CipherOptics.com', W/2, H*0.95);
+
+  // Show preview
+  const wrap = document.getElementById('preview-wrap');
+  wrap.innerHTML = '';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  wrap.appendChild(canvas);
+  document.querySelector('.success-sub').textContent = '你的高清图片已生成！';
+
+  // Download link
+  const url = canvas.toDataURL(CONFIG.image.format, CONFIG.image.quality);
+  const dlBtn = document.getElementById('dl-btn');
+  dlBtn.href = url;
+  dlBtn.download = `cipheroptics_${order.theme}_${Date.now()}.webp`;
+  dlBtn.style.display = 'flex';
+
+  // Helper fns
+  function lighten(hex, amt) {
+    const r = Math.min(255, parseInt(hex.slice(1,3),16)+amt);
+    const g = Math.min(255, parseInt(hex.slice(3,5),16)+amt);
+    const b = Math.min(255, parseInt(hex.slice(5,7),16)+amt);
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+  }
+  function hexRgba(hex, a) {
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  }
+})();
+</script>
 </body>
 </html>
