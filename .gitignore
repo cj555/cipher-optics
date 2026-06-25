@@ -1,0 +1,18 @@
+# Environment variables — never commit these
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Generated output images
+output/
+
+# Node
+node_modules/
+
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
