@@ -21,8 +21,10 @@ module.exports = async (req, res) => {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
+  console.log('[DEBUG] SUPABASE_URL length:', supabaseUrl ? supabaseUrl.length : 0);
+  console.log('[DEBUG] SUPABASE_SERVICE_KEY length:', supabaseKey ? supabaseKey.length : 0);
+
   if (!supabaseUrl || !supabaseKey) {
-    // Dev mode: log and return success
     console.log('[DEV] Order received:', { email, theme, polygon, faceIcons, orderTime });
     return res.status(200).json({ success: true, dev: true });
   }
