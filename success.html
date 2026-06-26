@@ -149,11 +149,33 @@
   wrap.appendChild(canvas);
   document.querySelector('.success-sub').textContent = '你的高清图片已生成！';
 
-  // Download link
-  const url = canvas.toDataURL(CONFIG.image.format, CONFIG.image.quality);
+  // Detect WebP support (Safari/iOS doesn't support WebP canvas export)
+  const testCanvas = document.createElement('canvas');
+  testCanvas.width = 1; testCanvas.height = 1;
+  const supportsWebP = testCanvas.toDataURL('image/webp').startsWith('data:image/webp');
+  const fmt = supportsWebP ? 'image/webp' : 'image/png';
+  const ext = supportsWebP ? 'webp' : 'png';
+  const url = canvas.toDataURL(fmt, CONFIG.image.quality);
+
   const dlBtn = document.getElementById('dl-btn');
-  dlBtn.href = url;
-  dlBtn.download = `cipheroptics_${order.theme}_${Date.now()}.webp`;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if (isIOS) {
+    // iOS Safari doesn't support <a download> for data URLs — open in new tab
+    dlBtn.textContent = '⬇ 长按图片保存到相册';
+    dlBtn.href = url;
+    dlBtn.target = '_blank';
+    dlBtn.removeAttribute('download');
+    // Also make the canvas itself tappable to open full image
+    canvas.style.cursor = 'pointer';
+    canvas.addEventListener('click', () => {
+      const w = window.open();
+      w.document.write(`<img src="${url}" style="max-width:100%;height:auto">`);
+    });
+  } else {
+    dlBtn.href = url;
+    dlBtn.download = `cipheroptics_${order.theme}_${Date.now()}.${ext}`;
+  }
   dlBtn.style.display = 'flex';
 
   // Helper fns
