@@ -229,31 +229,16 @@ const App = (() => {
   async function buyDigital() {
     closeBuyModal();
 
-    // Show loading state
-    const btn = document.getElementById('buy-btn');
-    const origText = btn.textContent;
-    btn.textContent = t('buy.processing');
-    btn.disabled = true;
-
     const orderData = buildOrderData();
+    sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
+    window.location.href = 'https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00';
 
     try {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderData, type: 'digital' }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        // Save order data to sessionStorage so success page can generate image
-        sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'No URL returned');
-      }
+      // legacy path — kept for reference
+      void 0;
     } catch (err) {
-      // Fallback: generate image client-side for testing
       console.warn('Stripe not configured, generating client-side:', err.message);
+      const btn = document.getElementById('buy-btn');
       btn.textContent = t('loading');
       await generateAndDownload(orderData);
       btn.textContent = origText;
