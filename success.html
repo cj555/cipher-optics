@@ -61,13 +61,14 @@
 <script>
 (async () => {
   // Retrieve order from sessionStorage (set before Stripe redirect)
-  const raw = sessionStorage.getItem('pendingOrder');
+  const raw = localStorage.getItem('pendingOrder') || sessionStorage.getItem('pendingOrder');
   if (!raw) {
     document.querySelector('.success-sub').textContent = '找不到订单信息，请返回重试。';
     return;
   }
 
   const order = JSON.parse(raw);
+  localStorage.removeItem('pendingOrder');
   sessionStorage.removeItem('pendingOrder');
 
   // Apply theme

@@ -230,7 +230,7 @@ const App = (() => {
     closeBuyModal();
 
     const orderData = buildOrderData();
-    sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
+    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     window.location.href = 'https://buy.stripe.com/test_aFaeVcfR17IZfeUd0WcIE00';
 
     try {
