@@ -19,7 +19,7 @@
   const layout     = SUPPORTED_LAYOUTS.includes(parts[2]) ? parts[2] : null;
   const themePack  = parts[3] || null;
   const iconPack   = parts[4] || null;
-  const mode       = VALID_MODES.includes(parts[5]) ? parts[5] : null;
+  const mode       = VALID_MODES.includes(parts[5]) ? parts[5] : 'digital';
 
   // Load audience config script, then boot
   const script = document.createElement('script');

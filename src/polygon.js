@@ -8,6 +8,7 @@ const PolygonRenderer = (() => {
   let prevPointer = { x: 0, y: 0 };
   let dragDistance = 0;
   let autoRotating = true;
+  let manuallyFrozen = false;
   let onFaceSelectCb = null;
   let container = null;
   let animFrameId = null;
@@ -169,6 +170,8 @@ const PolygonRenderer = (() => {
     faceMeshes = [];
     scene = null;
     group = null;
+    manuallyFrozen = false;
+    autoRotating = true;
   }
 
   function buildPolygon(type, theme) {
@@ -200,8 +203,8 @@ const PolygonRenderer = (() => {
     const onEnd = (x, y) => {
       if (dragDistance < 8) pickFace(x, y, canvas);
       isDragging = false;
-      // Resume auto-rotate after 3s idle
-      setTimeout(() => { autoRotating = true; }, 3000);
+      // Resume auto-rotate after 3s idle, unless manually frozen
+      setTimeout(() => { if (!manuallyFrozen) autoRotating = true; }, 3000);
     };
 
     canvas.addEventListener('touchstart', e => {
@@ -282,5 +285,21 @@ const PolygonRenderer = (() => {
     renderer.setSize(W, H);
   }
 
-  return { init, destroy, setFaceTexture, clearFaceTexture, resize };
+  function getRotation() {
+    return group ? { x: group.rotation.x, y: group.rotation.y, z: group.rotation.z } : null;
+  }
+
+  function setFrozen(rx, ry, rz) {
+    if (!group) return;
+    group.rotation.set(rx, ry, rz);
+    autoRotating = false;
+    manuallyFrozen = true;
+  }
+
+  function setUnfrozen() {
+    manuallyFrozen = false;
+    autoRotating = true;
+  }
+
+  return { init, destroy, setFaceTexture, clearFaceTexture, resize, getRotation, setFrozen, setUnfrozen };
 })();

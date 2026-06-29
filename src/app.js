@@ -16,6 +16,8 @@ const App = (() => {
   let taglineShuffled = [];
   let taglineBatchStart = 0;
   let taglineCurrentLang = null;
+  // state.frozen tracks whether polyhedron rotation is locked
+  state.frozen = false;
 
   // ─── Step navigation ───────────────────────────────────────────────────────
 
@@ -142,18 +144,37 @@ const App = (() => {
     updateBuyBtn();
     renderTaglineWidget();
 
+    // Reset freeze state when re-entering step 3
+    state.frozen = false;
+    PolygonRenderer.setUnfrozen();
+    const freezeBtn = document.getElementById('freeze-btn');
+    if (freezeBtn) {
+      freezeBtn.textContent = t('freeze.freeze');
+      freezeBtn.classList.remove('active');
+    }
+
     // Hint
     document.getElementById('rotate-hint').textContent = t('rotate.hint');
   }
 
   // ─── Tagline widget ────────────────────────────────────────────────────────
 
-  function getTaglineCount(text) {
+  function getTaglineLocalCount(text) {
     return parseInt(localStorage.getItem('co_tag_' + text) || '0', 10);
   }
 
+  function getTaglineTotal(tag) {
+    return (tag.seed || 0) + getTaglineLocalCount(tag.text);
+  }
+
   function incrementTaglineCount(text) {
-    localStorage.setItem('co_tag_' + text, getTaglineCount(text) + 1);
+    localStorage.setItem('co_tag_' + text, getTaglineLocalCount(text) + 1);
+  }
+
+  function computePercentages(tags) {
+    const totals = tags.map(tag => getTaglineTotal(tag));
+    const sum = totals.reduce((a, b) => a + b, 0);
+    return totals.map(t => sum > 0 ? Math.round(t / sum * 100) : 0);
   }
 
   function renderTaglineWidget() {
@@ -164,9 +185,11 @@ const App = (() => {
     const allTags = CONFIG.taglines[state.lang] || CONFIG.taglines['en'] || [];
     if (!allTags.length) return;
 
-    // Reshuffle if language changed or first render
+    // Support both old string[] format and new {text,seed}[] format
+    const normalized = allTags.map(t => typeof t === 'string' ? { text: t, seed: 0 } : t);
+
     if (taglineCurrentLang !== state.lang) {
-      taglineShuffled = [...allTags].sort(() => Math.random() - 0.5);
+      taglineShuffled = [...normalized].sort(() => Math.random() - 0.5);
       taglineBatchStart = 0;
       taglineCurrentLang = state.lang;
     }
@@ -175,7 +198,7 @@ const App = (() => {
     widget.id = 'tagline-widget';
     widget.className = 'tagline-widget';
 
-    renderTaglineBatch(widget, allTags);
+    renderTaglineBatch(widget, normalized);
 
     const wrap = document.querySelector('.title-input-wrap');
     wrap.parentNode.insertBefore(widget, wrap.nextSibling);
@@ -204,27 +227,69 @@ const App = (() => {
     const chips = document.createElement('div');
     chips.className = 'tagline-chips';
     const batch = taglineShuffled.slice(taglineBatchStart, taglineBatchStart + 5);
-    batch.forEach(text => {
-      const count = getTaglineCount(text);
+
+    // Compute percentages across ALL tags for consistency
+    const pcts = computePercentages(allTags);
+    const pctMap = {};
+    allTags.forEach((tag, i) => { pctMap[tag.text] = pcts[i]; });
+
+    batch.forEach(tag => {
       const chip = document.createElement('button');
       chip.className = 'tagline-chip';
+      chip.style.position = 'relative';
+
+      const label = document.createElement('span');
+      label.textContent = tag.text;
+
       const badge = document.createElement('span');
-      badge.className = 'tagline-badge' + (count === 0 ? ' zero' : '');
-      badge.textContent = count;
-      chip.appendChild(document.createTextNode(text));
+      badge.className = 'tagline-badge';
+      badge.textContent = (pctMap[tag.text] || 0) + '%';
+
+      chip.appendChild(label);
       chip.appendChild(badge);
+
       chip.addEventListener('click', () => {
-        const truncated = text.slice(0, 15);
+        const truncated = tag.text.slice(0, 15);
         const titleInput = document.getElementById('product-title');
         titleInput.value = truncated;
         state.title = truncated;
-        incrementTaglineCount(text);
-        badge.textContent = getTaglineCount(text);
-        badge.classList.remove('zero');
+        incrementTaglineCount(tag.text);
+
+        // Recompute and update badge
+        const newPcts = computePercentages(allTags);
+        const newPctMap = {};
+        allTags.forEach((t, i) => { newPctMap[t.text] = newPcts[i]; });
+        badge.textContent = (newPctMap[tag.text] || 0) + '%';
+
+        // +1 float animation
+        const plus = document.createElement('span');
+        plus.className = 'tagline-plus-one';
+        plus.textContent = '+1';
+        chip.appendChild(plus);
+        setTimeout(() => plus.remove(), 750);
       });
+
       chips.appendChild(chip);
     });
     widget.appendChild(chips);
+  }
+
+  // ─── Freeze ────────────────────────────────────────────────────────────────
+
+  function toggleFreeze() {
+    state.frozen = !state.frozen;
+    const btn = document.getElementById('freeze-btn');
+    if (!btn) return;
+    if (state.frozen) {
+      const rot = PolygonRenderer.getRotation();
+      if (rot) PolygonRenderer.setFrozen(rot.x, rot.y, rot.z);
+      btn.textContent = t('freeze.unfreeze');
+      btn.classList.add('active');
+    } else {
+      PolygonRenderer.setUnfrozen();
+      btn.textContent = t('freeze.freeze');
+      btn.classList.remove('active');
+    }
   }
 
   function onFaceSelected(faceIndex) {
@@ -255,6 +320,21 @@ const App = (() => {
     const icons = theme.icons;
     const grid = document.getElementById('icon-grid');
     grid.innerHTML = '';
+
+    // "None" option — clear any existing icon from this face
+    const noneBtn = document.createElement('button');
+    noneBtn.className = 'icon-btn' + (state.faceIcons[faceIndex] == null ? ' selected' : '');
+    noneBtn.innerHTML = `
+      <span class="icon-svg icon-none"></span>
+      <span class="icon-label">—</span>`;
+    noneBtn.addEventListener('click', () => {
+      delete state.faceIcons[faceIndex];
+      PolygonRenderer.clearFaceTexture(faceIndex, theme.faceColors[faceIndex % theme.faceColors.length]);
+      closePicker();
+      updateFaceStatus();
+      updateBuyBtn();
+    });
+    grid.appendChild(noneBtn);
 
     icons.forEach(iconId => {
       const icon = ICONS[iconId];
@@ -580,6 +660,10 @@ const App = (() => {
 
     // Email form
     document.getElementById('email-form').addEventListener('submit', submitPhysicalOrder);
+
+    // Freeze button (only present in LP template)
+    const freezeBtn = document.getElementById('freeze-btn');
+    if (freezeBtn) freezeBtn.addEventListener('click', toggleFreeze);
 
     // Resize handler
     window.addEventListener('resize', () => PolygonRenderer.resize());

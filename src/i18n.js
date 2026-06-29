@@ -32,6 +32,8 @@ const I18N = {
     'rotate.hint': '拖动旋转 · 点击选面',
     'tagline.label': '骚话推荐 · 点击填入',
     'tagline.shuffle': '换一批',
+    'freeze.freeze': '📸 定格',
+    'freeze.unfreeze': '▶ 继续旋转',
   },
   en: {
     'app.title': 'CipherOptics',
@@ -65,6 +67,8 @@ const I18N = {
     'rotate.hint': 'Drag to rotate · Tap to pick',
     'tagline.label': 'Copy suggestions · tap to fill',
     'tagline.shuffle': 'Next batch',
+    'freeze.freeze': '📸 Freeze',
+    'freeze.unfreeze': '▶ Resume',
   },
   fr: {
     'app.title': 'CipherOptics',
@@ -98,6 +102,8 @@ const I18N = {
     'rotate.hint': 'Glisser pour tourner · Toucher pour choisir',
     'tagline.label': 'Suggestions · toucher pour remplir',
     'tagline.shuffle': 'Suivant',
+    'freeze.freeze': '📸 Figer',
+    'freeze.unfreeze': '▶ Reprendre',
   },
   de: {
     'app.title': 'CipherOptics',
@@ -131,6 +137,8 @@ const I18N = {
     'rotate.hint': 'Ziehen zum Drehen · Tippen zum Wählen',
     'tagline.label': 'Vorschläge · tippen zum Einfügen',
     'tagline.shuffle': 'Nächste',
+    'freeze.freeze': '📸 Einfrieren',
+    'freeze.unfreeze': '▶ Fortsetzen',
   },
 };
 
