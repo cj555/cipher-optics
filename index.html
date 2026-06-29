@@ -7,167 +7,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0d0d2b">
-  <meta name="description" content="定制你的专属多面体 — CipherOptics">
+  <meta name="description" content="CipherOptics">
   <title>CipherOptics</title>
-  <link rel="stylesheet" href="/src/styles.css">
-  <!-- PWA manifest (optional) -->
   <link rel="apple-touch-icon" href="/public/icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0d0d2b; }
+    body { display: flex; align-items: center; justify-content: center; }
+    h1 {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e0d7ff;
+      letter-spacing: 0.02em;
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-
-  <!-- ─── Step 1: Theme ─────────────────────────────────────────────── -->
-  <section id="step-1" class="step active">
-    <div class="topbar">
-      <div class="spacer"></div>
-      <h1>CipherOptics</h1>
-      <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="zh">中文</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-      </div>
-    </div>
-
-    <div class="progress">
-      <div class="progress-step"><div class="progress-dot active"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot"></div></div>
-    </div>
-
-    <p class="section-title" data-i18n="step1.subtitle">选择主题风格</p>
-    <p class="section-sub" style="margin-bottom:16px">主题决定配色和图标列表</p>
-
-    <div class="theme-grid" id="theme-grid"></div>
-  </section>
-
-  <!-- ─── Step 2: Polygon ───────────────────────────────────────────── -->
-  <section id="step-2" class="step">
-    <div class="topbar">
-      <button class="back-btn" aria-label="返回">←</button>
-      <h1 data-i18n="step2.title">选择多面体</h1>
-      <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="zh">中文</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-      </div>
-    </div>
-
-    <div class="progress">
-      <div class="progress-step"><div class="progress-dot done"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot active"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot"></div></div>
-    </div>
-
-    <p class="section-sub">每个面都可以放置一个图标</p>
-    <div class="polygon-grid" id="polygon-grid"></div>
-  </section>
-
-  <!-- ─── Step 3: Customize ─────────────────────────────────────────── -->
-  <section id="step-3" class="step">
-    <div class="topbar">
-      <button class="back-btn" aria-label="返回">←</button>
-      <h1 data-i18n="step3.title">定制设计</h1>
-      <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="zh">中文</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-      </div>
-    </div>
-
-    <div class="progress">
-      <div class="progress-step"><div class="progress-dot done"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot done"></div></div>
-      <div class="progress-line"></div>
-      <div class="progress-step"><div class="progress-dot active"></div></div>
-    </div>
-
-    <div class="title-input-wrap">
-      <input type="text" id="product-title" data-i18n-ph="step3.titleHint" maxlength="15"
-             placeholder="输入标题（最多15字）">
-    </div>
-
-    <div id="three-container"></div>
-    <p class="rotate-hint" id="rotate-hint" data-i18n="rotate.hint">拖动旋转 · 点击选面</p>
-    <p class="face-status" id="face-status"></p>
-
-    <button class="buy-btn" id="buy-btn" disabled>
-      <span data-i18n="buy.button">立即购买</span>
-    </button>
-  </section>
-
-  <!-- ─── Icon Picker (bottom sheet) ───────────────────────────────── -->
-  <div class="icon-picker" id="icon-picker">
-    <div class="picker-handle"></div>
-    <div class="picker-header">
-      <h3 data-i18n="picker.title">选择图标</h3>
-      <span class="picker-face-label" id="picker-face-label">面 1</span>
-    </div>
-    <div class="icon-grid" id="icon-grid"></div>
-  </div>
-
-  <!-- ─── Semi-transparent overlay ────────────────────────────────── -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- ─── Buy Modal ────────────────────────────────────────────────── -->
-  <div class="modal" id="buy-modal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <button class="modal-close" id="close-buy" aria-label="关闭">×</button>
-      <p class="modal-title" data-i18n="buy.title">选择购买方式</p>
-      <div class="buy-options">
-        <div class="buy-option" id="btn-digital">
-          <div class="buy-option-icon">🖼️</div>
-          <div class="buy-option-info">
-            <strong data-i18n="buy.digital">数字高清图</strong>
-            <small data-i18n="buy.digital.desc">即时下载 · 5000×5000 WebP · 300DPI</small>
-          </div>
-          <span class="price" id="price-digital">$9.99</span>
-        </div>
-        <div class="buy-option" id="btn-physical">
-          <div class="buy-option-icon">📦</div>
-          <div class="buy-option-info">
-            <strong data-i18n="buy.physical">实物印花</strong>
-            <small data-i18n="buy.physical.desc">定制印刷 · 邮寄到家</small>
-          </div>
-          <span class="price" id="price-physical">$29.99</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── Physical Order Modal ─────────────────────────────────────── -->
-  <div class="modal" id="physical-modal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <button class="modal-close" id="close-physical" aria-label="关闭">×</button>
-      <div id="physical-loading" class="loading-spinner" style="display:none"></div>
-      <div id="physical-form" style="display:none">
-        <pre class="popup-text" id="popup-text"></pre>
-        <form id="email-form" novalidate>
-          <input type="email" id="customer-email"
-                 data-i18n-ph="form.emailPlaceholder"
-                 placeholder="your@email.com" required>
-          <button type="submit" class="submit-btn" data-i18n="form.submit">
-            预约我的专属位置 →
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-</div><!-- #app -->
-
-<!-- Three.js from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- App scripts -->
-<script src="/src/config.js"></script>
-<script src="/src/icons.js"></script>
-<script src="/src/i18n.js"></script>
-<script src="/src/polygon.js"></script>
-<script src="/src/app.js"></script>
+  <h1>CipherOptics</h1>
 </body>
 </html>
