@@ -68,7 +68,7 @@ const App = (() => {
   function renderMiniSVG(iconId, color) {
     const icon = ICONS[iconId];
     if (!icon) return '';
-    return icon.svg.replace(/currentColor/g, color);
+    return getIconHTML(iconId, color);
   }
 
   function selectTheme(themeId) {
@@ -174,8 +174,8 @@ const App = (() => {
       btn.className = 'icon-btn';
       if (state.faceIcons[faceIndex] === iconId) btn.classList.add('selected');
       btn.innerHTML = `
-        <span class="icon-svg">${icon.svg.replace(/currentColor/g, theme.accentColor)}</span>
-        <span class="icon-label">${icon.name[state.lang]}</span>`;
+        <span class="icon-svg">${getIconHTML(iconId, theme.accentColor)}</span>
+        <span class="icon-label">${icon.name[state.lang] || icon.name['en'] || iconId}</span>`;
       btn.addEventListener('click', () => applyIconToFace(faceIndex, iconId));
       grid.appendChild(btn);
     });
@@ -510,4 +510,6 @@ const App = (() => {
   };
 })();
 
-document.addEventListener('DOMContentLoaded', () => App.boot());
+if (!window.LP_MODE) {
+  document.addEventListener('DOMContentLoaded', () => App.boot());
+}

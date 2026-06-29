@@ -140,14 +140,25 @@ const ICONS = {
   },
 };
 
-// Helper: get icon SVG with color replaced
+// Helper: get icon SVG with color replaced (SVG icons only)
 function getIconSVG(iconId, color = '#ffffff') {
   const icon = ICONS[iconId];
-  if (!icon) return null;
+  if (!icon || icon.type === 'raster') return null;
   return icon.svg.replace(/currentColor/g, color);
 }
 
-// Helper: render icon to canvas at given size
+// Helper: render a single icon to an <img> or inline SVG string for HTML display
+// Returns HTML string: <img> for raster, inline SVG for vector
+function getIconHTML(iconId, color = '#ffffff') {
+  const icon = ICONS[iconId];
+  if (!icon) return '';
+  if (icon.type === 'raster') {
+    return `<img src="${icon.src}" alt="${iconId}" style="width:100%;height:100%;object-fit:contain">`;
+  }
+  return icon.svg.replace(/currentColor/g, color);
+}
+
+// Helper: render icon to canvas at given size (supports both SVG and raster)
 function renderIconToCanvas(iconId, size, bgColor, iconColor) {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
@@ -155,27 +166,34 @@ function renderIconToCanvas(iconId, size, bgColor, iconColor) {
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // Background
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, size, size);
 
-    const svgStr = getIconSVG(iconId, iconColor || '#ffffff');
-    if (!svgStr) { resolve(canvas); return; }
-
     const padding = size * 0.15;
     const iconSize = size - padding * 2;
+    const icon = ICONS[iconId];
 
-    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
+    if (!icon) { resolve(canvas); return; }
+
     const img = new Image();
     img.onload = () => {
       ctx.drawImage(img, padding, padding, iconSize, iconSize);
-      URL.revokeObjectURL(url);
       resolve(canvas);
     };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(canvas); };
-    img.src = url;
+    img.onerror = () => resolve(canvas);
+
+    if (icon.type === 'raster') {
+      img.crossOrigin = 'anonymous';
+      img.src = icon.src;
+    } else {
+      const svgStr = icon.svg.replace(/currentColor/g, iconColor || '#ffffff');
+      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      img.onload = () => { ctx.drawImage(img, padding, padding, iconSize, iconSize); URL.revokeObjectURL(url); resolve(canvas); };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(canvas); };
+      img.src = url;
+    }
   });
 }
 
-if (typeof module !== 'undefined') module.exports = { ICONS, getIconSVG, renderIconToCanvas };
+if (typeof module !== 'undefined') module.exports = { ICONS, getIconSVG, getIconHTML, renderIconToCanvas };

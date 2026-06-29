@@ -9,6 +9,9 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/success", "dest": "/success.html" },
+    { "src": "/debug", "dest": "/debug/index.html" },
+    { "src": "/lp/app-lp\\.js", "dest": "/lp/app-lp.js" },
+    { "src": "/lp/(?!.*\\.js$|.*\\.css$|.*\\.webp$|.*\\.png$)(.*)", "dest": "/lp/index.html" },
     { "src": "/(.*)", "dest": "/$1" }
   ],
   "headers": [

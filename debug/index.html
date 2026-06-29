@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LP Debug Panel — CipherOptics</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'PingFang SC', 'Microsoft YaHei', monospace, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; padding: 24px; }
+    h1 { font-size: 18px; color: #e2e8f0; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; color: #8b949e; margin-bottom: 24px; }
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px 16px; }
+    .stat-val { font-size: 22px; font-weight: 700; color: #58a6ff; }
+    .stat-label { font-size: 11px; color: #8b949e; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; background: #161b22; border-radius: 8px; overflow: hidden; font-size: 13px; }
+    th { background: #21262d; color: #8b949e; font-weight: 600; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 12px; border-top: 1px solid #21262d; vertical-align: middle; }
+    tr:hover td { background: #1c2128; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-live    { background: #0c2d0c; color: #3fb950; border: 1px solid #22c55e40; }
+    .badge-dev     { background: #2d2000; color: #fbbf24; border: 1px solid #f59e0b40; }
+    .badge-paused  { background: #1c1c1c; color: #6e7681; border: 1px solid #30363d; }
+    .lang-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lang-link { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .lang-link:hover { opacity: 0.75; }
+    .lang-zh { background: #1d3a6e; color: #60a5fa; }
+    .lang-en { background: #1a3320; color: #4ade80; }
+    .lang-fr { background: #2d1b4e; color: #a78bfa; }
+    .lang-de { background: #3d2000; color: #fbbf24; }
+    .url-cell { font-family: monospace; font-size: 11px; color: #8b949e; }
+    .note { font-size: 11px; color: #6e7681; font-style: italic; }
+    .audience-col { font-size: 14px; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .filter-btn { padding: 5px 14px; border-radius: 16px; border: 1px solid #30363d; background: #161b22; color: #8b949e; cursor: pointer; font-size: 12px; transition: all 0.15s; }
+    .filter-btn.active { border-color: #58a6ff; color: #58a6ff; background: #0d1f3c; }
+    .empty { text-align: center; padding: 40px; color: #6e7681; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>🗺 落地页调试面板</h1>
+  <p class="subtitle">CipherOptics Landing Pages · <a href="/" style="color:#58a6ff">← 返回主站</a></p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="filter-bar">
+    <span style="font-size:12px;color:#8b949e">筛选：</span>
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="live">✅ 在线</button>
+    <button class="filter-btn" data-filter="dev">🚧 开发中</button>
+    <button class="filter-btn" data-filter="paused">⏸ 已停用</button>
+  </div>
+
+  <table id="page-table">
+    <thead>
+      <tr>
+        <th>人群</th>
+        <th>排版</th>
+        <th>主题包</th>
+        <th>Icon包</th>
+        <th>语言链接</th>
+        <th>URL</th>
+        <th>状态</th>
+        <th>备注</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+
+  <script src="/debug/registry.js"></script>
+  <script>
+    const LANG_LABELS = { zh: '中文', en: 'EN', fr: 'FR', de: 'DE' };
+    const STATUS_LABEL = { live: '✅ 在线', dev: '🚧 开发中', paused: '⏸ 已停用' };
+    const BASE = location.origin;
+
+    function buildURL(row, lang) {
+      return `${location.origin}/lp/${row.audience}/${lang}/${row.layout}/${row.themePack}/${row.iconPack}/`;
+    }
+
+    function renderRows(filter) {
+      const tbody = document.getElementById('table-body');
+      const rows = filter === 'all' ? REGISTRY : REGISTRY.filter(r => r.status === filter);
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">暂无匹配页面</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(row => {
+        const langLinks = row.langs.map(l =>
+          `<a class="lang-link lang-${l}" href="${buildURL(row, l)}" target="_blank">${LANG_LABELS[l]}</a>`
+        ).join('');
+        const exampleURL = buildURL(row, row.langs[0]);
+        return `<tr data-status="${row.status}">
+          <td class="audience-col">${row.audienceLabel}</td>
+          <td>${row.layout}</td>
+          <td>${row.themePack}</td>
+          <td>${row.iconPack}</td>
+          <td><div class="lang-links">${langLinks}</div></td>
+          <td class="url-cell">${exampleURL}</td>
+          <td><span class="badge badge-${row.status}">${STATUS_LABEL[row.status]}</span></td>
+          <td class="note">${row.note || ''}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderStats() {
+      const live   = REGISTRY.filter(r => r.status === 'live').length;
+      const dev    = REGISTRY.filter(r => r.status === 'dev').length;
+      const paused = REGISTRY.filter(r => r.status === 'paused').length;
+      const totalURLs = REGISTRY.reduce((s, r) => s + r.langs.length, 0);
+      document.getElementById('stats').innerHTML = `
+        <div class="stat"><div class="stat-val">${REGISTRY.length}</div><div class="stat-label">页面配置</div></div>
+        <div class="stat"><div class="stat-val" style="color:#3fb950">${live}</div><div class="stat-label">在线</div></div>
+        <div class="stat"><div class="stat-val" style="color:#fbbf24">${dev}</div><div class="stat-label">开发中</div></div>
+        <div class="stat"><div class="stat-val" style="color:#6e7681">${paused}</div><div class="stat-label">已停用</div></div>
+        <div class="stat"><div class="stat-val" style="color:#a78bfa">${totalURLs}</div><div class="stat-label">总URL数</div></div>
+      `;
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderRows(btn.dataset.filter);
+      });
+    });
+
+    renderStats();
+    renderRows('all');
+  </script>
+</body>
+</html>
