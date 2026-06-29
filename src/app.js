@@ -13,6 +13,10 @@ const App = (() => {
     lang: 'zh',
   };
 
+  let taglineShuffled = [];
+  let taglineBatchStart = 0;
+  let taglineCurrentLang = null;
+
   // ─── Step navigation ───────────────────────────────────────────────────────
 
   function goToStep(n) {
@@ -125,6 +129,9 @@ const App = (() => {
     titleInput.placeholder = t('step3.titleHint');
     titleInput.value = state.title;
     titleInput.oninput = e => { state.title = e.target.value.slice(0, 15); };
+    if (CONFIG.fonts && CONFIG.fonts.family) {
+      titleInput.style.fontFamily = CONFIG.fonts.family;
+    }
 
     // Init 3D
     const container = document.getElementById('three-container');
@@ -133,9 +140,91 @@ const App = (() => {
 
     updateFaceStatus();
     updateBuyBtn();
+    renderTaglineWidget();
 
     // Hint
     document.getElementById('rotate-hint').textContent = t('rotate.hint');
+  }
+
+  // ─── Tagline widget ────────────────────────────────────────────────────────
+
+  function getTaglineCount(text) {
+    return parseInt(localStorage.getItem('co_tag_' + text) || '0', 10);
+  }
+
+  function incrementTaglineCount(text) {
+    localStorage.setItem('co_tag_' + text, getTaglineCount(text) + 1);
+  }
+
+  function renderTaglineWidget() {
+    const existing = document.getElementById('tagline-widget');
+    if (existing) existing.remove();
+    if (!CONFIG.taglines) return;
+
+    const allTags = CONFIG.taglines[state.lang] || CONFIG.taglines['en'] || [];
+    if (!allTags.length) return;
+
+    // Reshuffle if language changed or first render
+    if (taglineCurrentLang !== state.lang) {
+      taglineShuffled = [...allTags].sort(() => Math.random() - 0.5);
+      taglineBatchStart = 0;
+      taglineCurrentLang = state.lang;
+    }
+
+    const widget = document.createElement('div');
+    widget.id = 'tagline-widget';
+    widget.className = 'tagline-widget';
+
+    renderTaglineBatch(widget, allTags);
+
+    const wrap = document.querySelector('.title-input-wrap');
+    wrap.parentNode.insertBefore(widget, wrap.nextSibling);
+  }
+
+  function renderTaglineBatch(widget, allTags) {
+    widget.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'tagline-header';
+    header.innerHTML = `<span class="tagline-label">${t('tagline.label')}</span>`;
+    const shuffleBtn = document.createElement('button');
+    shuffleBtn.className = 'tagline-shuffle-btn';
+    shuffleBtn.textContent = t('tagline.shuffle');
+    shuffleBtn.addEventListener('click', () => {
+      taglineBatchStart += 5;
+      if (taglineBatchStart >= taglineShuffled.length) {
+        taglineShuffled = [...allTags].sort(() => Math.random() - 0.5);
+        taglineBatchStart = 0;
+      }
+      renderTaglineBatch(widget, allTags);
+    });
+    header.appendChild(shuffleBtn);
+    widget.appendChild(header);
+
+    const chips = document.createElement('div');
+    chips.className = 'tagline-chips';
+    const batch = taglineShuffled.slice(taglineBatchStart, taglineBatchStart + 5);
+    batch.forEach(text => {
+      const count = getTaglineCount(text);
+      const chip = document.createElement('button');
+      chip.className = 'tagline-chip';
+      const badge = document.createElement('span');
+      badge.className = 'tagline-badge' + (count === 0 ? ' zero' : '');
+      badge.textContent = count;
+      chip.appendChild(document.createTextNode(text));
+      chip.appendChild(badge);
+      chip.addEventListener('click', () => {
+        const truncated = text.slice(0, 15);
+        const titleInput = document.getElementById('product-title');
+        titleInput.value = truncated;
+        state.title = truncated;
+        incrementTaglineCount(text);
+        badge.textContent = getTaglineCount(text);
+        badge.classList.remove('zero');
+      });
+      chips.appendChild(chip);
+    });
+    widget.appendChild(chips);
   }
 
   function onFaceSelected(faceIndex) {
@@ -343,7 +432,11 @@ const App = (() => {
     ctx.fillRect(0, 0, W, H);
 
     // Title
-    ctx.font = `bold ${W * 0.06}px -apple-system, sans-serif`;
+    const titleFont = (CONFIG.fonts && CONFIG.fonts.family) ? CONFIG.fonts.family : '-apple-system, sans-serif';
+    if (CONFIG.fonts && CONFIG.fonts.family) {
+      await document.fonts.load(`bold 48px ${CONFIG.fonts.family}`).catch(() => {});
+    }
+    ctx.font = `bold ${W * 0.06}px ${titleFont}`;
     ctx.fillStyle = theme.titleColor;
     ctx.textAlign = 'center';
     ctx.fillText(orderData.title || 'CipherOptics', W / 2, W * 0.12);
@@ -474,8 +567,12 @@ const App = (() => {
       }
     });
 
-    // Buy buttons
-    document.getElementById('buy-btn').addEventListener('click', openBuyModal);
+    // Buy button — route by LP_MODE_TYPE if set
+    document.getElementById('buy-btn').addEventListener('click', () => {
+      if (window.LP_MODE_TYPE === 'digital') buyDigital();
+      else if (window.LP_MODE_TYPE === 'pod') buyPhysical();
+      else openBuyModal();
+    });
     document.getElementById('btn-digital').addEventListener('click', buyDigital);
     document.getElementById('btn-physical').addEventListener('click', buyPhysical);
     document.getElementById('close-buy').addEventListener('click', closeBuyModal);

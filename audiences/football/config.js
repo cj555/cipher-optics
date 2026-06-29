@@ -171,6 +171,20 @@ var AUDIENCE = {
     },
   },
 
+  // ─── Taglines (copy suggestions near title input) ───────────────────────────
+  taglines: {
+    zh: ['我的传奇', '永不言败', '热血沸腾', '球场霸主', '荣耀时刻', '无畏前行', '传奇启程', '王者归来', '全力以赴', '生而为赢'],
+    en: ['My Legend', 'Never Give Up', 'Born to Win', 'Field King', 'Glory Days', 'Fearless', 'Rise Up', 'Champion', 'All In', 'Born for This'],
+    fr: ['Ma Légende', 'Sans Limite', 'Né Pour Gagner', 'Maître du Stade', 'Gloire Éternelle', 'Intrépide', 'En Avant', 'Champion', 'Tout Donner', 'Fait Pour Ça'],
+    de: ['Meine Legende', 'Niemals Aufgeben', 'Zum Siegen Bereit', 'Feldherr', 'Ruhm', 'Furchtlos', 'Aufsteigen', 'Champion', 'Alles Geben', 'Dafür Geboren'],
+  },
+
+  // ─── Font config ────────────────────────────────────────────────────────────
+  fonts: {
+    family: '"Press Start 2P", monospace',
+    googleUrl: 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
+  },
+
   // ─── Audience-specific popup text ───────────────────────────────────────────
   popup: {
     zh: `球迷专属！本周的印花通道已被球迷们挤爆了！🏆\n\n不过我们不会让你精心定制的"专属球迷版"就这样消失！\n\n留下你的邮箱，我们会第一时间为你发送专属通道链接，还有一张隐藏的球迷专属9折优惠券！`,

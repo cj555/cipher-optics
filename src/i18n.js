@@ -30,6 +30,8 @@ const I18N = {
     'loading': '生成中...',
     'download': '下载高清图片',
     'rotate.hint': '拖动旋转 · 点击选面',
+    'tagline.label': '骚话推荐 · 点击填入',
+    'tagline.shuffle': '换一批',
   },
   en: {
     'app.title': 'CipherOptics',
@@ -61,6 +63,8 @@ const I18N = {
     'loading': 'Generating...',
     'download': 'Download HD Image',
     'rotate.hint': 'Drag to rotate · Tap to pick',
+    'tagline.label': 'Copy suggestions · tap to fill',
+    'tagline.shuffle': 'Next batch',
   },
   fr: {
     'app.title': 'CipherOptics',
@@ -92,6 +96,8 @@ const I18N = {
     'loading': 'Génération...',
     'download': 'Télécharger l\'image HD',
     'rotate.hint': 'Glisser pour tourner · Toucher pour choisir',
+    'tagline.label': 'Suggestions · toucher pour remplir',
+    'tagline.shuffle': 'Suivant',
   },
   de: {
     'app.title': 'CipherOptics',
@@ -123,6 +129,8 @@ const I18N = {
     'loading': 'Wird generiert...',
     'download': 'HD-Bild herunterladen',
     'rotate.hint': 'Ziehen zum Drehen · Tippen zum Wählen',
+    'tagline.label': 'Vorschläge · tippen zum Einfügen',
+    'tagline.shuffle': 'Nächste',
   },
 };
 

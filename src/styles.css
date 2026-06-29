@@ -249,7 +249,71 @@ svg { display: block; }
 
 /* ─── Customize step ─────────────────────────────────────────────────────── */
 .title-input-wrap {
+  margin-bottom: 10px;
+}
+
+/* ─── Tagline widget ─────────────────────────────────────────────────────── */
+.tagline-widget {
   margin-bottom: 14px;
+}
+.tagline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.tagline-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.03em;
+}
+.tagline-shuffle-btn {
+  background: none;
+  border: none;
+  color: var(--theme-accent);
+  cursor: pointer;
+  font-size: 0.72rem;
+  text-decoration: underline;
+  padding: 0;
+  opacity: 0.85;
+}
+.tagline-shuffle-btn:hover { opacity: 1; }
+.tagline-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tagline-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--theme-title);
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tagline-chip:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--theme-accent);
+}
+.tagline-badge {
+  background: var(--theme-accent);
+  color: #000;
+  border-radius: 999px;
+  padding: 0 5px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.6;
+}
+.tagline-badge.zero {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
 }
 .title-input-wrap input {
   width: 100%;

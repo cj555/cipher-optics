@@ -1,9 +1,10 @@
 // Landing-page bootstrap — reads URL path, loads audience config, boots app
-// URL format: /lp/{audience}/{lang}/{layout}/{theme_pack}/{icon_pack}/
+// URL format: /lp/{audience}/{lang}/{layout}/{theme_pack}/{icon_pack}/{mode}/
 
 (function () {
   const SUPPORTED_LANGS = ['zh', 'en', 'fr', 'de'];
   const SUPPORTED_LAYOUTS = ['polygon', 'bag', 'comic', 'grid'];
+  const VALID_MODES = ['digital', 'pod'];
 
   // Parse URL path segments
   // Vercel: /lp/football/zh/polygon/...  → parts = ['football','zh',...]
@@ -18,12 +19,14 @@
   const layout     = SUPPORTED_LAYOUTS.includes(parts[2]) ? parts[2] : null;
   const themePack  = parts[3] || null;
   const iconPack   = parts[4] || null;
+  const mode       = VALID_MODES.includes(parts[5]) ? parts[5] : null;
 
   // Load audience config script, then boot
   const script = document.createElement('script');
   script.src = `/audiences/${audience}/config.js`;
   script.onerror = () => {
     console.warn(`[LP] Audience config not found: ${audience}, using defaults`);
+    window.LP_MODE_TYPE = mode;
     applyAndBoot(null, lang, layout, themePack, iconPack);
   };
   script.onload = () => {
@@ -31,7 +34,7 @@
       applyAndBoot(window.AUDIENCE || null, lang, layout, themePack, iconPack);
     } catch(e) {
       console.error('[LP] applyAndBoot failed:', e.message, e.stack);
-      // Fallback: boot with defaults
+      window.LP_MODE_TYPE = mode;
       App.boot();
     }
   };
@@ -73,6 +76,26 @@
         CONFIG.popup.text = audienceCfg.popup;
       }
 
+      // Merge taglines
+      if (audienceCfg.taglines) {
+        CONFIG.taglines = audienceCfg.taglines;
+      }
+
+      // Inject font: Google Fonts link or custom @font-face style
+      if (audienceCfg.fonts) {
+        CONFIG.fonts = audienceCfg.fonts;
+        if (audienceCfg.fonts.googleUrl) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = audienceCfg.fonts.googleUrl;
+          document.head.appendChild(link);
+        } else if (audienceCfg.fonts.customCss) {
+          const style = document.createElement('style');
+          style.textContent = audienceCfg.fonts.customCss;
+          document.head.appendChild(style);
+        }
+      }
+
       // Store resolved params for debug/analytics
       window.LP_PARAMS = {
         audience,
@@ -80,6 +103,7 @@
         layout: resolvedLayout,
         themePack: resolvedThemePack,
         iconPack: resolvedIconPack,
+        mode,
       };
 
       // Update lang switcher buttons to reflect resolved lang
@@ -87,6 +111,9 @@
         btn.classList.toggle('active', btn.dataset.lang === resolvedLang);
       });
     }
+
+    // Expose purchase mode type for buy button handler
+    window.LP_MODE_TYPE = mode;
 
     // Boot the app (App is already defined by app.js)
     App.boot();
